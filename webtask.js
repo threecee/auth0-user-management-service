@@ -84,6 +84,7 @@ function apiReverseProxy (req, res, next) {
   if(req.method === 'GET' && req.path === '/users')
   {
     path = '?q=app_metadata.accountId="'+ accountId + '"';
+    console.log('set path:' + path);
   }
 
   //if write user
