@@ -10,6 +10,7 @@ var app = Express();
 
 app.use(bodyParser.json());
 
+
 app.use(function getAuth0Config (req, res, done) {
   var secrets = req.webtaskContext.secrets;
 
@@ -53,6 +54,7 @@ app.use(jwt({
   }
 }));
 
+
 // authorize
 app.use(function authorize (req, res, done) {
   var issuer = 'https://' + req.auth0.domain + '/';
@@ -76,14 +78,16 @@ function apiReverseProxy (req, res, next) {
 
   var qs = _.omit(req.query, 'webtask_no_cache');
 
+  var path = req.path;
+
   //if read users
   if(req.method === 'GET' && req.path === '/users')
   {
-    qs = 'q=app_metadata.accountId="'+ accountId + '"';
+    path = 'q=app_metadata.accountId="'+ accountId + '"';
   }
 
   //if write user
-  if(req.method === 'GET' && req.path === '/users')
+  if(req.method === 'POST' && req.path === '/users')
   {
     const valid_domains = req.user.app_metadata.valid_email_domains;
     const new_user_domain = req.body.email.split('@')[1];
@@ -111,7 +115,7 @@ function apiReverseProxy (req, res, next) {
 
   var opts = {
     method: req.method,
-    uri: 'https://' + req.auth0.domain + '/api/v2' + req.path,
+    uri: 'https://' + req.auth0.domain + '/api/v2' + path,
     qs: qs,
     auth: { bearer: req.auth0.api_access_token },
     json: Object.keys(req.body).length > 0 ? req.body : null
@@ -140,7 +144,7 @@ function apiReverseProxy (req, res, next) {
 app.get('/users', apiReverseProxy);
 app.post('/users', apiReverseProxy);
 app.get('/users/:id', apiReverseProxy);
-app.del('/users/:id', apiReverseProxy);
+app.delete('/users/:id', apiReverseProxy);
 app.patch('/users/:id', apiReverseProxy);
 
 // errors
