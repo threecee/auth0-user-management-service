@@ -74,7 +74,7 @@ app.use(function authorize (req, res, done) {
 function apiReverseProxy (req, res, next) {
   const accountId = req.user.app_metadata.accountId;
 
-  leq qs = _.omit(req.query, 'webtask_no_cache');
+  var qs = _.omit(req.query, 'webtask_no_cache');
 
   //if read users
   if(req.method === 'GET' && req.path === '/users')
