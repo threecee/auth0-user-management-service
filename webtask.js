@@ -72,10 +72,47 @@ app.use(function authorize (req, res, done) {
 // endpoints
 
 function apiReverseProxy (req, res, next) {
+  const accountId = req.user.app_metadata.accountId;
+
+  leq qs = _.omit(req.query, 'webtask_no_cache');
+
+  //if read users
+  if(req.method === 'GET' && req.path === '/users')
+  {
+    qs = 'q=app_metadata.accountId="'+ accountId + '"';
+  }
+
+  //if write user
+  if(req.method === 'GET' && req.path === '/users')
+  {
+    const valid_domains = req.user.app_metadata.valid_email_domains;
+    const new_user_domain = req.body.email.split('@')[1];
+    var isValidDomain = false;
+    for(var i = 0; i < valid_domains.length; i++)
+    {
+      if(new_user_domain === valid_domains[i])
+      {
+        isValidDomain = true;
+      }
+    }
+    req.body.connection = req.user.app_metadata.user_connection;
+
+    req.body.app_metadata = {
+      accountId: req.user.app_metadata.accountId,
+      accountName: req.user.app_metadata.accountName,
+      accountAdmin: false,
+      owner:false,
+      vendor:false
+    }
+
+  }
+
+
+
   var opts = {
     method: req.method,
     uri: 'https://' + req.auth0.domain + '/api/v2' + req.path,
-    qs: _.omit(req.query, 'webtask_no_cache'),
+    qs: qs,
     auth: { bearer: req.auth0.api_access_token },
     json: Object.keys(req.body).length > 0 ? req.body : null
   };
