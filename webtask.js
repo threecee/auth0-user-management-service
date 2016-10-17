@@ -127,7 +127,8 @@ function apiReverseProxy (req, res, next) {
       var loggedRequest = {
         method: request.method,
         path: request.path,
-        headers: _.clone(request._headers)
+        headers: _.clone(request._headers),
+        body: req.body,
       };
       loggedRequest.headers.authorization = 'Bearer XXX';
 
